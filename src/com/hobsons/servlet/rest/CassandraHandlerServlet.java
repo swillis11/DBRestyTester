@@ -49,7 +49,7 @@ public class CassandraHandlerServlet extends HttpServlet {
 			QueryResult<HColumn<String, String>> result = columnQuery.execute();
 			long elapsedTime = System.nanoTime() - startTime;
 			
-			System.out.println("DoGet Elapsed Time: " + elapsedTime);
+			System.out.println("DoGet Elapsed Time: " + elapsedTime + " ns");
 			out.write(result.get().toString());
 
 		} catch (HectorException e) {
