@@ -3,6 +3,9 @@ package com.hobsons.servlet.rest;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -66,17 +69,44 @@ public class CassandraHandlerServlet extends HttpServlet {
 		resp.sendError(404);
 	}
 
+	/*
+	 * curl localhost:8088/cassandrahandlerservlet --request POST -d "id=dude"
+	 * Update = POST
+	 * 
+	 */
 	@Override
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 
-		resp.sendError(404);
+		String id = req.getParameter("id");
+		System.out.println("Param = " + id);
+		resp.setStatus(200);
 	}
 
+	/*
+	 * curl localhost:8088/cassandrahandlerservlet --request PUT -d "rowkey=123&id=dude&itworks=true"
+	 * Create = PUT
+	 * 
+	 * Params: 
+	 *  - RowKey = ?
+	 *  - every other param will be a column/value in that row
+	 */
 	@Override
 	protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+		//TODO Add handler for inserting data into the Test Cluster. Same keyspace. Create a Row Key and a Column.
+		
+		Map<?,?> paramMap = req.getParameterMap();
 
-		resp.sendError(404);
+		for (Map.Entry<?, ?> entry : paramMap.entrySet())
+		{
+			Object key  = entry.getKey();
+			String[] params = (String[])paramMap.get(key);
+			
+		    System.out.println(key + "=" + params[0]);
+		}
+		
+		System.out.println("RowKey = " + ((String[])paramMap.get("rowkey"))[0]);
+		
+		resp.setStatus(200);
 	}
-	
 
 }
