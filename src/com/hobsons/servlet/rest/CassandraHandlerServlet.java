@@ -20,26 +20,26 @@ import me.prettyprint.hector.api.query.ColumnQuery;
 import me.prettyprint.hector.api.query.QueryResult;
 
 /*
- * 	   RESTful handler for working with C*
- *     
- *     Create = PUT
- *     Retrieve = GET
- *     Update = POST
- *     Delete = DELETE
+ * RESTful handler for working with C*
+ *
+ * Create = PUT
+ * Retrieve = GET
+ * Update = POST
+ * Delete = DELETE
  */
 
 @SuppressWarnings("serial")
 public class CassandraHandlerServlet extends HttpServlet {
 
 	final static Cluster cluster = HFactory.getOrCreateCluster("Test Cluster", "10.24.0.210:9160");
-	
+
 	final static Keyspace keyspaceOperator = HFactory.createKeyspace("TestSpace", cluster);
-	
+
 	// Retrieve a record
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-		
+
 		long startTime = System.nanoTime();
-		
+
 		PrintWriter out = resp.getWriter();
 
 		try {
@@ -48,7 +48,7 @@ public class CassandraHandlerServlet extends HttpServlet {
 			columnQuery.setColumnFamily("Standard1").setKey("jsmith").setName("first");
 			QueryResult<HColumn<String, String>> result = columnQuery.execute();
 			long elapsedTime = System.nanoTime() - startTime;
-			
+
 			System.out.println("DoGet Elapsed Time: " + elapsedTime + " ns");
 			out.write(result.get().toString());
 
@@ -56,77 +56,126 @@ public class CassandraHandlerServlet extends HttpServlet {
 			e.printStackTrace();
 		}
 
-		//cluster.getConnectionManager().shutdown();
 		out.close();
 	}
 
+	/*
+	 * 
+	 * curl localhost:8088/cassandrahandlerservlet --get --request DELETE -d
+	 * "cf=Standard1&rowkey=jsmith&id=dude1"
+	 */
 	@Override
 	protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 
-		resp.sendError(404);
+		long startTime = System.nanoTime();
+
+		try {
+			Mutator<String> mutator = HFactory.createMutator(keyspaceOperator, StringSerializer.get());
+			Map<?, ?> paramMap = req.getParameterMap();
+			String rowkey = ((String[]) paramMap.get("rowkey"))[0];
+			String cf = ((String[]) paramMap.get("cf"))[0];
+
+			for (Map.Entry<?, ?> entry : paramMap.entrySet()) {
+
+				Object key = entry.getKey();
+
+				if (!("rowkey".equals((String) (key)) || "cf".equals((String) key))) {
+
+					mutator.addDeletion(rowkey, cf, (String) key, StringSerializer.get());
+				}
+
+			}
+			mutator.execute();
+
+			long elapsedTime = System.nanoTime() - startTime;
+
+			System.out.println("DoDelete Elapsed Time: " + elapsedTime + " ns");
+
+		} catch (HectorException e) {
+			e.printStackTrace();
+		}
 	}
 
 	/*
-	 * curl localhost:8088/cassandrahandlerservlet --request POST -d "id=dude"
-	 * Update = POST
-	 * 
+	 * curl localhost:8088/cassandrahandlerservlet --request POST -d
+	 * "cf=Standard1&rowkey=jsmith&id=dude" Update = POST
 	 */
 	@Override
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 
-		String id = req.getParameter("id");
-		System.out.println("Param = " + id);
-		resp.setStatus(200);
+		long startTime = System.nanoTime();
+
+		try {
+			Mutator<String> mutator = HFactory.createMutator(keyspaceOperator, StringSerializer.get());
+
+			Map<?, ?> paramMap = req.getParameterMap();
+
+			String rowkey = ((String[]) paramMap.get("rowkey"))[0];
+			String cf = ((String[]) paramMap.get("cf"))[0];
+
+			for (Map.Entry<?, ?> entry : paramMap.entrySet()) {
+
+				Object key = entry.getKey();
+				String[] params = (String[]) paramMap.get(key);
+
+				if (!("rowkey".equals((String) (key)) || "cf".equals((String) key))) {
+
+					mutator.addInsertion(rowkey, cf, HFactory.createStringColumn((String) key, params[0]));
+				}
+			}
+
+			mutator.execute();
+
+			long elapsedTime = System.nanoTime() - startTime;
+
+			System.out.println("DoPost Elapsed Time: " + elapsedTime + " ns");
+
+		} catch (HectorException e) {
+			e.printStackTrace();
+		}
 	}
 
 	/*
-	 * curl localhost:8088/cassandrahandlerservlet --request PUT -d "rowkey=123&id=dude&itworks=true"
-	 * Create = PUT
+	 * curl localhost:8088/cassandrahandlerservlet --request PUT -d
+	 * "cf=Standard1&rowkey=123&id=dude&itworks=true" Create = PUT
 	 * 
-	 * Params: 
-	 *  - RowKey = ?
-	 *  - every other param will be a column/value in that row
+	 * Params: - RowKey = ? - every other param will be a column/value in that
+	 * row
 	 */
 	@Override
 	protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-		//TODO Add handler for inserting data into the Test Cluster. Same keyspace. Create a Row Key and a Column.
-		
-        try {
-            Mutator<String> mutator = HFactory.createMutator(keyspaceOperator, StringSerializer.get());
-            
-    		Map<?,?> paramMap = req.getParameterMap();
-    		
-    		String rowkey = ((String[])paramMap.get("rowkey"))[0];
-    		
-    		for (Map.Entry<?, ?> entry : paramMap.entrySet()){
-    			
-    			Object key  = entry.getKey();
-    			String[] params = (String[])paramMap.get(key);
-    			
-    			mutator.insert(rowkey, "Standard1", HFactory.createStringColumn((String)key, params[0]));
 
-    		    System.out.println(key + "=" + params[0]);
-    		}         
+		long startTime = System.nanoTime();
 
-        } catch (HectorException e) {
-            e.printStackTrace();
-        }
-        
-/*		
-		Map<?,?> paramMap = req.getParameterMap();
+		try {
+			Mutator<String> mutator = HFactory.createMutator(keyspaceOperator, StringSerializer.get());
 
-		for (Map.Entry<?, ?> entry : paramMap.entrySet())
-		{
-			Object key  = entry.getKey();
-			String[] params = (String[])paramMap.get(key);
-			
-		    System.out.println(key + "=" + params[0]);
+			Map<?, ?> paramMap = req.getParameterMap();
+
+			String rowkey = ((String[]) paramMap.get("rowkey"))[0];
+			String cf = ((String[]) paramMap.get("cf"))[0];
+
+			for (Map.Entry<?, ?> entry : paramMap.entrySet()) {
+
+				Object key = entry.getKey();
+				String[] params = (String[]) paramMap.get(key);
+
+				if (!("rowkey".equals((String) (key)) || "cf".equals((String) key))) {
+
+					mutator.addInsertion(rowkey, cf, HFactory.createStringColumn((String) key, params[0]));
+				}
+			}
+
+			mutator.execute();
+
+			long elapsedTime = System.nanoTime() - startTime;
+
+			System.out.println("DoPut Elapsed Time: " + elapsedTime + " ns");
+
+		} catch (HectorException e) {
+			e.printStackTrace();
 		}
-		
-		System.out.println("RowKey = " + ((String[])paramMap.get("rowkey"))[0]);
-		
-		resp.setStatus(200);
-*/
+
 	}
 
 }
