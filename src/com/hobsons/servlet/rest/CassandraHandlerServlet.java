@@ -1,11 +1,9 @@
 package com.hobsons.servlet.rest;
 
 import java.io.IOException;
-import java.io.OutputStream;
 import java.io.PrintWriter;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
+import java.util.UUID;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -115,18 +113,30 @@ public class CassandraHandlerServlet extends HttpServlet {
     		Map<?,?> paramMap = req.getParameterMap();
     		
     		String rowkey = ((String[])paramMap.get("rowkey"))[0];
-    		String cf = ((String[])paramMap.get("cf"))[0];
+    		String cf 	  = ((String[])paramMap.get("cf"))[0];
+    		String cols	  = ((String[])paramMap.get("cols"))[0];
     		
-    		for (Map.Entry<?, ?> entry : paramMap.entrySet()){
+    		if(paramMap.size()>3){
+    		
+	    		for (Map.Entry<?, ?> entry : paramMap.entrySet()){
+	    			
+	    			Object key  = entry.getKey();
+	    			String[] params = (String[])paramMap.get(key);
+	 
+	    			if(!("rowkey".equals((String)(key))||"cf".equals((String)key))){
+	    					
+	    				mutator.addInsertion(rowkey, cf, HFactory.createStringColumn((String)key, params[0]));
+	    			}
+	    		}
+    		}
+    		
+    		else{
     			
-    			Object key  = entry.getKey();
-    			String[] params = (String[])paramMap.get(key);
- 
-    			if(!("rowkey".equals((String)(key))||"cf".equals((String)key))){
-    					
-    				mutator.addInsertion(rowkey, cf, HFactory.createStringColumn((String)key, params[0]));
+    			for(int i=0; i<Integer.parseInt(cols); i++){
+    				mutator.addInsertion(rowkey, cf, HFactory.createStringColumn(UUID.randomUUID().toString(),UUID.randomUUID().toString()));
     			}
     		}
+    			
     		
     		mutator.execute();
 
@@ -160,15 +170,26 @@ public class CassandraHandlerServlet extends HttpServlet {
     		
     		String rowkey = ((String[])paramMap.get("rowkey"))[0];
     		String cf = ((String[])paramMap.get("cf"))[0];
+    		String cols	  = ((String[])paramMap.get("cols"))[0];
     		
-    		for (Map.Entry<?, ?> entry : paramMap.entrySet()){
+    		if(paramMap.size()>3){
+        		
+	    		for (Map.Entry<?, ?> entry : paramMap.entrySet()){
+	    			
+	    			Object key  = entry.getKey();
+	    			String[] params = (String[])paramMap.get(key);
+	 
+	    			if(!("rowkey".equals((String)(key))||"cf".equals((String)key))){
+	    					
+	    				mutator.addInsertion(rowkey, cf, HFactory.createStringColumn((String)key, params[0]));
+	    			}
+	    		}
+    		}
+    		
+    		else{
     			
-    			Object key  = entry.getKey();
-    			String[] params = (String[])paramMap.get(key);
- 
-    			if(!("rowkey".equals((String)(key))||"cf".equals((String)key))){
-    					
-    				mutator.addInsertion(rowkey, cf, HFactory.createStringColumn((String)key, params[0]));
+    			for(int i=0; i<Integer.parseInt(cols); i++){
+    				mutator.addInsertion(rowkey, cf, HFactory.createStringColumn(UUID.randomUUID().toString(),UUID.randomUUID().toString()));
     			}
     		}
     		
@@ -178,7 +199,7 @@ public class CassandraHandlerServlet extends HttpServlet {
 			
 			System.out.println("DoPut Elapsed Time: " + elapsedTime + " ns");
 			
-        } catch (HectorException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
