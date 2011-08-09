@@ -94,6 +94,30 @@ public class CassandraHandlerServlet extends HttpServlet {
 	protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		//TODO Add handler for inserting data into the Test Cluster. Same keyspace. Create a Row Key and a Column.
 		
+        try {
+            Mutator<String> mutator = HFactory.createMutator(keyspaceOperator, StringSerializer.get());
+            
+    		Map<?,?> paramMap = req.getParameterMap();
+    		
+    		String rowkey = ((String[])paramMap.get("rowkey"))[0];
+    		
+    		for (Map.Entry<?, ?> entry : paramMap.entrySet()){
+    			
+    			Object key  = entry.getKey();
+    			String[] params = (String[])paramMap.get(key);
+    			
+    			mutator.insert(rowkey, "Standard1", HFactory.createStringColumn((String)key, params[0]));
+
+    		    System.out.println(key + "=" + params[0]);
+    		}         
+
+        } catch (HectorException e) {
+            e.printStackTrace();
+        }
+        cluster.getConnectionManager().shutdown();
+        
+        
+/*		
 		Map<?,?> paramMap = req.getParameterMap();
 
 		for (Map.Entry<?, ?> entry : paramMap.entrySet())
@@ -107,6 +131,7 @@ public class CassandraHandlerServlet extends HttpServlet {
 		System.out.println("RowKey = " + ((String[])paramMap.get("rowkey"))[0]);
 		
 		resp.setStatus(200);
+*/
 	}
 
 }
