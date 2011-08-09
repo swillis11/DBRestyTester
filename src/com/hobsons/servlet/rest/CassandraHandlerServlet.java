@@ -111,8 +111,6 @@ public class CassandraHandlerServlet extends HttpServlet {
         } catch (HectorException e) {
             e.printStackTrace();
         }
-        cluster.getConnectionManager().shutdown();
-        
         
 /*		
 		Map<?,?> paramMap = req.getParameterMap();
