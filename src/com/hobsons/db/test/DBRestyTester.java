@@ -18,7 +18,7 @@ public class DBRestyTester {
         context.addServlet(new ServletHolder(new CassandraHandlerServlet()), "/cassandrahandlerservlet");
         context.addServlet(new ServletHolder(new CQLHandlerServlet()), "/cqlhandlerservlet");
         context.addServlet(new ServletHolder(new MongoHandlerServlet()), "/mongohandlerservlet");
-        
+        //
         System.out.println("REST server started");
         
         server.start();
