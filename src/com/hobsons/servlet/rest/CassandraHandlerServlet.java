@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import me.prettyprint.cassandra.serializers.StringSerializer;
+import me.prettyprint.cassandra.service.CassandraHostConfigurator;
 import me.prettyprint.hector.api.Cluster;
 import me.prettyprint.hector.api.Keyspace;
 import me.prettyprint.hector.api.beans.HColumn;
@@ -32,14 +33,14 @@ import me.prettyprint.hector.api.query.QueryResult;
 @SuppressWarnings("serial")
 public class CassandraHandlerServlet extends HttpServlet {
 
-	final static Cluster cluster = HFactory.getOrCreateCluster("Test Cluster", "10.24.0.210:9160");
+	final static Cluster cluster = HFactory.getOrCreateCluster("Test Cluster", "brisk1:9160,brisk2:9160,brisk3:9160");
 	
 	final static Keyspace keyspaceOperator = HFactory.createKeyspace("TestSpace", cluster);
 	
 	// Retrieve a record
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		
-		long startTime = System.nanoTime();
+//		long startTime = System.nanoTime();
 		
 		PrintWriter out = resp.getWriter();
 
@@ -48,9 +49,9 @@ public class CassandraHandlerServlet extends HttpServlet {
 			ColumnQuery<String, String, String> columnQuery = HFactory.createStringColumnQuery(keyspaceOperator);
 			columnQuery.setColumnFamily("Standard1").setKey("jsmith").setName("first");
 			QueryResult<HColumn<String, String>> result = columnQuery.execute();
-			long elapsedTime = System.nanoTime() - startTime;
+//			long elapsedTime = System.nanoTime() - startTime;
 			
-			System.out.println("DoGet Elapsed Time: " + elapsedTime + " ns");
+//			System.out.println("DoGet Elapsed Time: " + elapsedTime + " ns");
 			out.write(result.get().toString());
 
 		} catch (HectorException e) {
@@ -69,7 +70,7 @@ public class CassandraHandlerServlet extends HttpServlet {
 	@Override
 	protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 
-		long startTime = System.nanoTime();
+//		long startTime = System.nanoTime();
 		
         try {
             Mutator<String> mutator = HFactory.createMutator(keyspaceOperator, StringSerializer.get());            
@@ -88,9 +89,10 @@ public class CassandraHandlerServlet extends HttpServlet {
     			
     		}mutator.execute();
     		
-			long elapsedTime = System.nanoTime() - startTime;
+/*			long elapsedTime = System.nanoTime() - startTime;
 			
 			System.out.println("DoDelete Elapsed Time: " + elapsedTime + " ns");
+*/
 
         } catch (HectorException e) {
             e.printStackTrace();
@@ -105,7 +107,7 @@ public class CassandraHandlerServlet extends HttpServlet {
 	@Override
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 
-		long startTime = System.nanoTime();
+//		long startTime = System.nanoTime();
 		
         try {
             Mutator<String> mutator = HFactory.createMutator(keyspaceOperator, StringSerializer.get());
@@ -140,9 +142,10 @@ public class CassandraHandlerServlet extends HttpServlet {
     		
     		mutator.execute();
 
-			long elapsedTime = System.nanoTime() - startTime;
+/*			long elapsedTime = System.nanoTime() - startTime;
 			
 			System.out.println("DoPost Elapsed Time: " + elapsedTime + " ns");
+*/
 			
         } catch (HectorException e) {
             e.printStackTrace();
@@ -161,7 +164,7 @@ public class CassandraHandlerServlet extends HttpServlet {
 	@Override
 	protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 
-		long startTime = System.nanoTime();
+//		long startTime = System.nanoTime();
 		
         try {
             Mutator<String> mutator = HFactory.createMutator(keyspaceOperator, StringSerializer.get());
@@ -195,10 +198,10 @@ public class CassandraHandlerServlet extends HttpServlet {
     		
     		mutator.execute();
 
-			long elapsedTime = System.nanoTime() - startTime;
+/*			long elapsedTime = System.nanoTime() - startTime;
 			
 			System.out.println("DoPut Elapsed Time: " + elapsedTime + " ns");
-			
+*/			
         } catch (Exception e) {
             e.printStackTrace();
         }

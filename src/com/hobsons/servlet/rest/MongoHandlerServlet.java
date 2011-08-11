@@ -23,46 +23,45 @@ import com.mongodb.DBCursor;
 
 @SuppressWarnings("serial")
 public class MongoHandlerServlet extends HttpServlet{
-
-	@Override
-	protected void doGet(HttpServletRequest req, HttpServletResponse resp)
-			throws ServletException, IOException {
-
+	
+	public static void mongoConnect() throws Exception{
 		
 		try{
 			Mongo m = new Mongo("graylog2",27017);
-			DB db = m.getDB( "mydb" );
 			
-			Set<String> colls = db.getCollectionNames();
-	
-			for (String s : colls) {
-			    System.out.println(s);
-			}
-		}catch (Exception e) {
+			DB db = m.getDB("mydb");
+			
+		}catch(Exception e){
 			e.printStackTrace();
 		}
+	}
+	
+	@Override
+	protected void doGet(HttpServletRequest req, HttpServletResponse resp)
+			throws ServletException, IOException {
 		
+		
+
 	}
 
 	@Override
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp)
 			throws ServletException, IOException {
-		Mongo m = new Mongo("graylog2",27017);
-		DB db = m.getDB( "mydb" );
+
 	}
 
 	@Override
 	protected void doPut(HttpServletRequest req, HttpServletResponse resp)
 			throws ServletException, IOException {
-		Mongo m = new Mongo("graylog2",27017);
-		DB db = m.getDB( "mydb" );
+
 	}
 
 	@Override
 	protected void doDelete(HttpServletRequest req, HttpServletResponse resp)
 			throws ServletException, IOException {
-		Mongo m = new Mongo("graylog2",27017);
-		DB db = m.getDB( "mydb" );
+
 	}
+	
+
 
 }
