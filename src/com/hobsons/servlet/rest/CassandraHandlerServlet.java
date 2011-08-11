@@ -22,26 +22,37 @@ import me.prettyprint.hector.api.query.ColumnQuery;
 import me.prettyprint.hector.api.query.QueryResult;
 
 /*
- * 	   RESTful handler for working with C*
- *     
- *     Create = PUT
- *     Retrieve = GET
- *     Update = POST
- *     Delete = DELETE
+ * RESTful handler for working with C*
+ *
+ * Create = PUT
+ * Retrieve = GET
+ * Update = POST
+ * Delete = DELETE
  */
 
 @SuppressWarnings("serial")
 public class CassandraHandlerServlet extends HttpServlet {
 
+<<<<<<< HEAD
 	final static Cluster cluster = HFactory.getOrCreateCluster("Test Cluster", "brisk1:9160,brisk2:9160,brisk3:9160");
 	
+=======
+	final static Cluster cluster = HFactory.getOrCreateCluster("Test Cluster", "10.24.0.210:9160");
+
+>>>>>>> refs/heads/pmcfadin-master
 	final static Keyspace keyspaceOperator = HFactory.createKeyspace("TestSpace", cluster);
-	
+
 	// Retrieve a record
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+<<<<<<< HEAD
 		
 //		long startTime = System.nanoTime();
 		
+=======
+
+		long startTime = System.nanoTime();
+
+>>>>>>> refs/heads/pmcfadin-master
 		PrintWriter out = resp.getWriter();
 
 		try {
@@ -49,9 +60,15 @@ public class CassandraHandlerServlet extends HttpServlet {
 			ColumnQuery<String, String, String> columnQuery = HFactory.createStringColumnQuery(keyspaceOperator);
 			columnQuery.setColumnFamily("Standard1").setKey("jsmith").setName("first");
 			QueryResult<HColumn<String, String>> result = columnQuery.execute();
+<<<<<<< HEAD
 //			long elapsedTime = System.nanoTime() - startTime;
 			
 //			System.out.println("DoGet Elapsed Time: " + elapsedTime + " ns");
+=======
+			long elapsedTime = System.nanoTime() - startTime;
+
+			System.out.println("DoGet Elapsed Time: " + elapsedTime + " ns");
+>>>>>>> refs/heads/pmcfadin-master
 			out.write(result.get().toString());
 
 		} catch (HectorException e) {
@@ -61,11 +78,10 @@ public class CassandraHandlerServlet extends HttpServlet {
 		out.close();
 	}
 
-	
 	/*
 	 * 
-	 *curl localhost:8088/cassandrahandlerservlet --get --request DELETE -d "cf=Standard1&rowkey=jsmith&id=dude1" 
-	 *  
+	 * curl localhost:8088/cassandrahandlerservlet --get --request DELETE -d
+	 * "cf=Standard1&rowkey=jsmith&id=dude1"
 	 */
 	@Override
 	protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -100,9 +116,8 @@ public class CassandraHandlerServlet extends HttpServlet {
 	}
 
 	/*
-	 * curl localhost:8088/cassandrahandlerservlet --request POST -d "cf=Standard1&rowkey=jsmith&id=dude"
-	 * Update = POST
-	 * 
+	 * curl localhost:8088/cassandrahandlerservlet --request POST -d
+	 * "cf=Standard1&rowkey=jsmith&id=dude" Update = POST
 	 */
 	@Override
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -151,7 +166,6 @@ public class CassandraHandlerServlet extends HttpServlet {
             e.printStackTrace();
         }
 }
-
 
 	/*
 	 * curl localhost:8088/cassandrahandlerservlet --request PUT -d "cf=Standard1&rowkey=123&id=dude&itworks=true"
